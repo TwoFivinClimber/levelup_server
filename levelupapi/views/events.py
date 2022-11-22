@@ -35,7 +35,7 @@ class EventView(ViewSet):
     def create(self, request):
         ''''handles POST operations'''
         
-        gamer = Gamer.objects.get(uid=request.data["user_id"])
+        gamer = Gamer.objects.get(id=request.data["organizer_id"])
         game = Game.objects.get(pk=request.data["game"])
         
         event = Event.objects.create(
@@ -46,7 +46,24 @@ class EventView(ViewSet):
             organizer = gamer,
         )
         serializer = EventSerializer(event)
-        return Response(serializer.data)      
+        return Response(serializer.data)
+    
+    def update(self, request, pk):
+        """Handles PUT requests for an event"""
+        
+        event = Event.objects.get(pk=pk)
+        event.description = request.data["description"]
+        event.date = request.data["date"]
+        event.time = request.data["time"]
+        game = Game.objects.get(pk=request.data["game"])
+        event.game = game
+        
+        event.save()
+        
+        return Response(None, status=status.HTTP_204_NO_CONTENT) 
+        
+        
+              
 
 class EventSerializer(serializers.ModelSerializer):
     """JSON serializer"""
