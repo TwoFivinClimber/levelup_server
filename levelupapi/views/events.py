@@ -35,7 +35,7 @@ class EventView(ViewSet):
     def create(self, request):
         ''''handles POST operations'''
         
-        gamer = Gamer.objects.get(id=request.data["organizer_id"])
+        gamer = Gamer.objects.get(id=request.data["organizer"])
         game = Game.objects.get(pk=request.data["game"])
         
         event = Event.objects.create(
