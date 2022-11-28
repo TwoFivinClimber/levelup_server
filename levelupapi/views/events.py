@@ -4,7 +4,7 @@ from django.http import HttpResponseServerError
 from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 from rest_framework import serializers, status
-from levelupapi.models import Event, Gamer, Game
+from levelupapi.models import Event, Gamer, Game, EventGamer
 from rest_framework.decorators import action
 
 
@@ -76,8 +76,22 @@ class EventView(ViewSet):
 
         gamer = Gamer.objects.get(pk=request.data["user_id"])
         event = Event.objects.get(pk=pk)
-        event.attendees.add(gamer)
-        return Response({'message': 'Gamer added'}, status=status.HTTP_201_CREATED)       
+        EventGamer.objects.create(
+            gamer = gamer,
+            event = event,
+        )
+        return Response({'message': 'Gamer added'}, status=status.HTTP_201_CREATED)
+    
+    @action(methods=['delete'], detail=True)
+    def leave(self, request, pk):
+        """Delete request for gamer leaving event"""
+        
+        gamer = Gamer.objects.get(pk=request.data["user_id"])
+        event = Event.objects.get(pk=pk)
+        event_gamer = EventGamer.objects.get(event=event, gamer=gamer)
+        event_gamer.delete()
+        
+        return Response(None, status=status.HTTP_204_NO_CONTENT)
 
 
 class EventSerializer(serializers.ModelSerializer):
